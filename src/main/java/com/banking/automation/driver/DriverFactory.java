@@ -6,6 +6,7 @@ import org.openqa.selenium.WebDriver;
 
 import com.banking.automation.config.ConfigurationManager;
 import com.banking.automation.enums.BrowserType;
+import com.banking.automation.exception.DriverException;
 import com.banking.automation.factory.BrowserFactory;
 import com.banking.automation.utils.LoggerUtility;
 
@@ -30,7 +31,7 @@ public final class DriverFactory {
 		}
 		
 		if (Objects.nonNull(DRIVER.get())) {
-            throw new IllegalStateException(
+            throw new DriverException(
                     "WebDriver is already initialized for the current thread...");
         }
 		
@@ -50,7 +51,7 @@ public final class DriverFactory {
 	public static void setDriver(final WebDriver webDriver) {
 		
 		if(Objects.isNull(webDriver)) {
-			throw new IllegalArgumentException(
+			throw new DriverException(
 					"WebDriver cannot be null...");
 		}
 		
@@ -64,7 +65,7 @@ public final class DriverFactory {
 			
 			LoggerUtility.error("WebDriver has not been initialized for the current thread...");
 			
-			throw new IllegalStateException(
+			throw new DriverException(
 					"WebDriver has not been initialized for the current thread...");
 		}
 		

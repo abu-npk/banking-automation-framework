@@ -11,6 +11,8 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
 import com.banking.automation.enums.BrowserType;
+import com.banking.automation.exception.ConfigurationException;
+import com.banking.automation.exception.DriverException;
 import com.banking.automation.utils.LoggerUtility;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -100,7 +102,7 @@ public final class BrowserFactory {
                     driver = new EdgeDriver(options);
                 }
 
-                default -> throw new IllegalArgumentException(
+                default -> throw new ConfigurationException(
                         "Unsupported browser type: "+ browserType);
             }
 
@@ -123,7 +125,10 @@ public final class BrowserFactory {
                             + headless
                             + ")",
                     e);
-            throw e;
+            throw new DriverException(
+            		"Failed to create browser driver: "
+            				+browserType,
+            		e);
         }
     }
 
@@ -164,7 +169,7 @@ public final class BrowserFactory {
     private static void validateBrowserType(final BrowserType browserType) {
 
         if (Objects.isNull(browserType)) {
-            throw new IllegalArgumentException(
+            throw new ConfigurationException(
                     "Browser type cannot be null...");
         }
     }
