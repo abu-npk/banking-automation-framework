@@ -1,6 +1,7 @@
 package com.banking.automation.base;
 
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 
 import com.banking.automation.driver.DriverFactory;
 import com.banking.automation.enums.BrowserType;
@@ -8,22 +9,26 @@ import com.banking.automation.utils.LoggerUtility;
 
 import org.testng.annotations.AfterMethod;
 
+
 public abstract class BaseTest {
-	private static final BrowserType DEFAULT_BROWSER = BrowserType.CHROME;
+	
 	
 	@BeforeMethod(alwaysRun = true)
-	public void beforeMethod() {
+	@Parameters("browser")
+	public void beforeMethod(final String browser) {
+		final BrowserType browserType = BrowserType.fromValue(browser);
 		LoggerUtility.info(
                 "Starting test setup. Browser: "
-                        + DEFAULT_BROWSER);
+                        + browserType);
 
         try {
-
-            DriverFactory.initializeDriver(
-                    DEFAULT_BROWSER);
+        	
+            
+        	DriverFactory.initializeDriver(browserType);
 
             LoggerUtility.info(
                     "Test setup completed successfully.");
+
 
         } catch (RuntimeException e) {
 

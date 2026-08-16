@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -42,13 +43,38 @@ public final class ScreenshotUtility {
 		try {
 			Files.createDirectories(screenshotDirectory);
 			final File sourceFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-			Files.copy(sourceFile.toPath(),screenshotPath);
+			Files.copy(sourceFile.toPath(),screenshotPath, StandardCopyOption.REPLACE_EXISTING);
 			
 			return screenshotPath.toAbsolutePath().toString();
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to save screenshot: "+ screenshotPath,
 					e);
 		}
+	}
+	
+	public static byte[] captureScreenshotBytes() {
+
+	    final WebDriver driver = DriverFactory.getDriver();
+
+	    if (!(driver instanceof TakesScreenshot)) {
+	        throw new IllegalStateException(
+	                "Current WebDriver does not support screenshots..."
+	        );
+	    }
+
+	    try {
+	        return ((TakesScreenshot) driver)
+	                .getScreenshotAs(OutputType.BYTES);
+
+	    } catch (RuntimeException exception) {
+
+	        LoggerUtility.error(
+	                "Failed to capture screenshot bytes.",
+	                exception
+	        );
+
+	        throw exception;
+	    }
 	}
 	
 	private static void validateScreenshotName(final String screenshotName) {
