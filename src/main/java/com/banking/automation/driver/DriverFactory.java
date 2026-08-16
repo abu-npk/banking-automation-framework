@@ -7,6 +7,7 @@ import org.openqa.selenium.WebDriver;
 import com.banking.automation.config.ConfigurationManager;
 import com.banking.automation.enums.BrowserType;
 import com.banking.automation.factory.BrowserFactory;
+import com.banking.automation.utils.LoggerUtility;
 
 public final class DriverFactory {
 	
@@ -25,17 +26,25 @@ public final class DriverFactory {
 	public static void initializeDriver(final BrowserType browserType) {
 		if(Objects.isNull(browserType)){
 			throw new IllegalStateException(
-					"Browser type cannot be null");
+					"Browser type cannot be null...");
 		}
 		
 		if (Objects.nonNull(DRIVER.get())) {
             throw new IllegalStateException(
-                    "WebDriver is already initialized for the current thread."
-            );
+                    "WebDriver is already initialized for the current thread...");
         }
 		
-		final WebDriver webDriver = BrowserFactory.createDriver(browserType);
-		setDriver(webDriver);
+		LoggerUtility.info("Initializing WebDriver for browser: "+browserType);
+		try {
+			final WebDriver webDriver = BrowserFactory.createDriver(browserType);
+			setDriver(webDriver);
+			
+			LoggerUtility.info("WebDriver initialized successfully for browser: "+browserType);
+		} catch(RuntimeException e) {
+			LoggerUtility.error("Failed to initialize WebDriver for browser: "+browserType,
+					e);
+			throw e;
+		}
 	}
 	
 	public static void setDriver(final WebDriver webDriver) {
@@ -52,6 +61,9 @@ public final class DriverFactory {
 		final WebDriver webDriver = DRIVER.get();
 		
 		if(Objects.isNull(webDriver)) {
+			
+			LoggerUtility.error("WebDriver has not been initialized for the current thread...");
+			
 			throw new IllegalStateException(
 					"WebDriver has not been initialized for the current thread...");
 		}
@@ -61,13 +73,30 @@ public final class DriverFactory {
 	
 	public static void quitDriver() {
 		final WebDriver webDriver = DRIVER.get();
-		
-		try {
-			if(Objects.nonNull(webDriver)) {
-				webDriver.quit();
-			}
-		} finally {
-			DRIVER.remove();
-		}
+		if (Objects.nonNull(webDriver)) {
+
+            LoggerUtility.info("Starting WebDriver cleanup...");
+
+            try {
+                webDriver.quit();
+
+                LoggerUtility.info("WebDriver cleanup completed successfully..." );
+
+            } catch (RuntimeException e) {
+
+                LoggerUtility.error("WebDriver cleanup failed.",
+                        e);
+                throw e;
+
+            } finally {
+                DRIVER.remove();
+            }
+
+        } else {
+
+            DRIVER.remove();
+
+            LoggerUtility.debug("No WebDriver instance found during cleanup..." );
+        }
 	}
 }
